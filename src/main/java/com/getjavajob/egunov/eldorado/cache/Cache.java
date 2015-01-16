@@ -1,6 +1,10 @@
 package com.getjavajob.egunov.eldorado.cache;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -70,7 +74,9 @@ public class Cache {
     }
 
     public void cleanCache() {
-        TimerTask task = new TimerTask() {
+
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        Runnable task = new Runnable() {
             @Override
             public void run() {
                 writeLock.lock();
@@ -89,8 +95,7 @@ public class Cache {
                 }
             }
         };
-        Timer cleanCacheTimer = new Timer("timer", true);
-        cleanCacheTimer.schedule(task, timeToLive);
+        service.schedule(task, timeToLive, TimeUnit.MILLISECONDS);
     }
 
     public long getTimeToLive() {
